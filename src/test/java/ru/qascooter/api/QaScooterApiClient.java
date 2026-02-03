@@ -7,6 +7,7 @@ import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import ru.qascooter.dto.requestbody.AddCourier;
+import ru.qascooter.dto.requestbody.CreateOrders;
 import ru.qascooter.dto.requestbody.LoginCourier;
 
 import static io.restassured.RestAssured.given;
@@ -52,6 +53,29 @@ public class QaScooterApiClient {
                 .header("Content-Type", "application/json")
                 .when()
                 .delete(endpoint);
+    }
+
+    //Создать заказ
+    public Response sendPostOrders(CreateOrders createOrders){
+        String endpoint = QaScooterApiConfig.getOrdersEndpoint();
+
+        return given()
+                .header("Content-Type", "application/json")
+                .body(createOrders)
+                .when()
+                .post(endpoint);
+    }
+
+
+    //Получить список из 10 заказов
+    public Response sendGetRequestOrdersList(){
+        String endpoint = QaScooterApiConfig.getOrdersEndpoint();
+
+        return given()
+                .header("Content-Type", "application/json")
+                .queryParam("limit", 10).queryParam("page", 0)
+                .when()
+                .get(endpoint);
     }
 
 

@@ -10,6 +10,8 @@ public class QaScooterApiConfig {
 
     private static final String COURIER_LOGIN_ENDPOINT = "/api/v1/courier/login";
 
+    private static final String ORDERS = "/api/v1/orders";
+
     public static String getBaseUrl() {
         return BASE_URL;
     }
@@ -24,6 +26,10 @@ public class QaScooterApiConfig {
 
     public static String getCourierLoginEndpoint(){
         return COURIER_LOGIN_ENDPOINT;
+    }
+
+    public static String getOrdersEndpoint(){
+        return ORDERS;
     }
 
 }
