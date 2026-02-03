@@ -9,44 +9,22 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import ru.qascooter.dto.requestbody.AddCourier;
-import ru.qascooter.dto.responcebody.LoginResponse;
 
-import java.util.UUID;
 import java.util.stream.Stream;
+import ru.qascooter.utilities.Utilities;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@DisplayName("1. Тестирование эндпоинта '/api/v1/courier'")
-public class TestEndpointCourier extends BaseApiTest{
-
-
-    private static String generateUniqueLogin() {
-        return "courier_" + UUID.randomUUID().toString().substring(0, 8);
-    }
-
-    private static String generateUniquePassword(){
-        return UUID.randomUUID().toString().substring(0, 6);
-    }
-
-    private static String generateUniqueName(){
-        return "Петр_" + UUID.randomUUID().toString().substring(0, 4);
-    }
-
-    private static AddCourier createRandomCourier() {
-        return new AddCourier(generateUniqueLogin(), generateUniquePassword(), generateUniqueName());
-    }
-
-    private static AddCourier createCourierWithSameLogin(String login) {
-        return new AddCourier(login, generateUniquePassword(), generateUniqueName());
-    }
+@DisplayName("1. Создание курьера: эндпоинт '/api/v1/courier'")
+public class TestCourierEndpoint extends BaseApiTest{
 
     //тесты
     @Test
     @DisplayName("1.1. Cоздание курьера - позитивный кейс")
     @Description("Проверяемое требование: курьера можно создать, успешный запрос возвращает ok: true;")
     public void testCreateCourier_PositiveCase() {
-        AddCourier addCourier = createRandomCourier();
+        AddCourier addCourier = Utilities.createRandomCourier();
 
         sendPostRequestCreateCourier(addCourier);
 
@@ -58,7 +36,7 @@ public class TestEndpointCourier extends BaseApiTest{
     @DisplayName("1.2. Нельзя создать двух одинаковых курьеров - негативный кейс")
     @Description("Проверяемое требование: нельзя создать двух одинаковых курьеров")
     public void testCreateTwoIdentialCourier_NegativeCase() {
-        AddCourier addCourier = createRandomCourier();
+        AddCourier addCourier = Utilities.createRandomCourier();
 
         sendPostRequestCreateCourier(addCourier);
         sendPostRequestCreateTwoIdenticalCourier(addCourier);
@@ -84,13 +62,13 @@ public class TestEndpointCourier extends BaseApiTest{
     @DisplayName("1.4. Нельзя создать пользователя с логином, который уже есть")
     @Description("Проверяемой требование: если создать пользователя с логином, который уже есть, возвращается ошибка.")
     public void testCreateCourier_loginIsAlreadyInSystem() {
-        String loginCourier = generateUniqueLogin();
+        String loginCourier = Utilities.generateUniqueLogin();
 
-        AddCourier firstCourier  = createRandomCourier();
+        AddCourier firstCourier  = Utilities.createRandomCourier();
 
         sendPostRequestCreateCourier(firstCourier);
 
-        AddCourier secondCourier = createCourierWithSameLogin(firstCourier.getLogin());
+        AddCourier secondCourier = Utilities.createCourierWithSameLogin(firstCourier.getLogin());
 
         sendPostRequestCreateCourierloginIsAlreadyInSystem(secondCourier);
 
@@ -157,39 +135,16 @@ public class TestEndpointCourier extends BaseApiTest{
                 String.format("Ожидали statusCode: %s.\n Получили statusCode: %s.\n Тело ответа: %s",
                         expectedStatus, actualStatus, response.body().asString()));
         return response;
-
     }
 
-    @Step("Если курьер создан, то удалить его после тестирования")
-    private void tryDeleteCourier(String login, String password) {
-        Allure.step("Попытка авторизации курьера для получения id", () -> {
-            Response loginResponse = qaScooterApiClient.sendPostRequestloginCourier(login, password);
 
-            if (loginResponse.statusCode() == 200) {
-                LoginResponse loginResponseBody = loginResponse.as(LoginResponse.class);
-                String id = loginResponseBody.getId();
-                Allure.step(String.format("Id курьера найдено '%s'", id));
-
-                Allure.step("Отправка DELETE запроса для удаления курьера с id: " + id, () -> {
-                    Response deleteResponse = qaScooterApiClient.sendDeleteRequestCourier(id);
-                    deleteResponse.then().assertThat().statusCode(200);
-                });
-
-                Allure.step(String.format("Курьер под номером \"%s\" удален", id));
-            } else {
-                Allure.step(String.format("Курьер '%s' не найден в системе (статус: %d), удаление не требуется",
-                        login, loginResponse.statusCode()));
-                Allure.step(String.format("Ответ на запрос логирования '%s'", loginResponse.statusCode()));
-            }
-        });
-    }
 
     // параметризация
     static Stream<Arguments> invalidCourierData() {
 
-        AddCourier addCourier1  = new AddCourier(generateUniqueLogin(), generateUniquePassword(), null);
-        AddCourier addCourier2  = new AddCourier(generateUniqueLogin(), null, "Федор");
-        AddCourier addCourier3  = new AddCourier(null, generateUniquePassword(), "Мария");
+        AddCourier addCourier1  = new AddCourier(Utilities.generateUniqueLogin(), Utilities.generateUniquePassword(), null);
+        AddCourier addCourier2  = new AddCourier(Utilities.generateUniqueLogin(), null, "Федор");
+        AddCourier addCourier3  = new AddCourier(null, Utilities.generateUniquePassword(), "Мария");
 
         return Stream.of(
                 Arguments.of(addCourier1, 400),
