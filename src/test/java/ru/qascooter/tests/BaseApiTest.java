@@ -12,7 +12,7 @@ public class BaseApiTest {
     protected static QaScooterApiClient qaScooterApiClient;
 
     @BeforeAll
-    protected static void SetUp() {
+    protected static void setUp() {
         qaScooterApiClient = new QaScooterApiClient();
     }
 

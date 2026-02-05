@@ -1,12 +1,12 @@
 package ru.qascooter.utilities;
 
-import io.restassured.RestAssured;
-import ru.qascooter.api.QaScooterApiConfig;
+import com.github.javafaker.Faker;
 import ru.qascooter.dto.requestbody.AddCourier;
 import ru.qascooter.dto.requestbody.CreateOrders;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -15,10 +15,14 @@ import static io.restassured.RestAssured.given;
 
 public class Utilities {
 
+    private static final Faker FAKER = new Faker(new Locale("ru"));
+    private static final Faker FAKER_EN = new Faker();
+
     private Utilities() {}
 
     public static String generateUniqueLogin() {
-        return "courier_" + UUID.randomUUID().toString().substring(0, 8);
+        return FAKER_EN.name().username().toLowerCase() +
+                ThreadLocalRandom.current().nextInt(1000, 9999);
     }
 
     public static String generateUniquePassword(){
@@ -26,19 +30,19 @@ public class Utilities {
     }
 
     public static String generateUniqueName(){
-        return "Петр_" + UUID.randomUUID().toString().substring(0, 4);
+        return  FAKER.name().firstName();
     }
 
     public static String generateUniqueLastName(){
-        return "Касперский_" + UUID.randomUUID().toString().substring(0, 3);
+        return FAKER.name().lastName();
     }
 
     public static String generateUniqueAddress(){
-        return "Москва, ул. Московская, д. " + UUID.randomUUID().toString().substring(0, 3);
+        return FAKER.address().fullAddress();
     }
 
     public static String generateUniquePhoneNumber(){
-        return "+7 800 355 3" + UUID.randomUUID().toString().substring(3, 3);
+        return FAKER.phoneNumber().phoneNumber();
     }
 
     public static String getRandomComment(){
@@ -52,8 +56,9 @@ public class Utilities {
     }
 
     public static String getTomorrowDate() {
-        LocalDate tomorrow = LocalDate.now().plusDays(1);
-        return tomorrow.format(DateTimeFormatter.ISO_LOCAL_DATE); // "yyyy-MM-dd"
+        return LocalDate.now()
+                .plusDays(1)
+                .format(DateTimeFormatter.ISO_LOCAL_DATE);
     }
 
     public static AddCourier createRandomCourier() {

@@ -32,7 +32,15 @@ public class TestOrdersEndpoint extends BaseApiTest{
     public void testCreateOrder(String[] color, String testCase) {
         Allure.step(String.format("Проверяем случай: %s.\n color содержит: %s",testCase, Arrays.toString(color)));
 
-        sendPostRequestCreateOrders(Utilities.createOrdersBody(color));
+        Response response = sendPostRequestCreateOrders(Utilities.createOrdersBody(color));
+
+        Allure.step("Проверка полученного результата", () -> {
+            response.then().assertThat().statusCode(201);
+            response.then().assertThat().body("track", notNullValue());
+        });
+
+        Allure.step(String.format("Заказ создан, Получили statusCode: %s.\n Тело ответа: %s",
+                response.statusCode(), response.body().asString()));
 
     }
 
@@ -40,51 +48,35 @@ public class TestOrdersEndpoint extends BaseApiTest{
     @DisplayName("4.1 Получение списка заказов")
     @Description("Проверь, что в тело ответа возвращается список заказов.")
     public void testGetOrdersList() {
-        sendGetRequestListOrders();
+
+        Response response = sendGetRequestListOrders();
+
+        Allure.step("Проверка полученного результата", () -> {
+            response.then().assertThat().statusCode(200);
+            response.then()
+                    .assertThat()
+                    .body("orders", notNullValue())  // поле orders не null
+                    .body("orders", instanceOf(java.util.List.class)); // это список
+
+            int ordersCount = response.jsonPath().getList("orders").size();
+            Allure.step(String.format("Получено заказов: %d", ordersCount));
+        });
+
     }
-
-
-
 
     //  шаги, которые участвуют в тестах
-    @Step("Отправка POST запроса создание курьера на эндпоинт: /api/v1/courier")
-    public void sendPostRequestCreateCourier(AddCourier addCourier){
-
-        Response response = qaScooterApiClient.sendPostRequestCreateCourier(addCourier);
-
-        response.then().assertThat().statusCode(201);
-        response.then().assertThat().body("ok", equalTo(true));
-
-        Allure.step(String.format("Получен statusCode: %s. Новый курьер успешно создан.", response.statusCode()));
-
-    }
 
     @Step("Отправка POST запроса создание заказа")
-    public void sendPostRequestCreateOrders(CreateOrders createOrders){
+    public Response sendPostRequestCreateOrders(CreateOrders createOrders){
 
-        Response response = qaScooterApiClient.sendPostOrders(createOrders);
-
-        response.then().assertThat().statusCode(201);
-        response.then().assertThat().body("track", notNullValue());
-
-        Allure.step(String.format("Заказ создан, Получили statusCode: %s.\n Тело ответа: %s",
-                response.statusCode(), response.body().asString()));
+        return qaScooterApiClient.sendPostOrders(createOrders);
 
     }
 
     @Step("Отправка GET запроса получения списка заказов")
-    public void sendGetRequestListOrders(){
+    public Response sendGetRequestListOrders(){
 
-        Response response = qaScooterApiClient.sendGetRequestOrdersList();
-
-        response.then().assertThat().statusCode(200);
-        response.then()
-                .assertThat()
-                .body("orders", notNullValue())  // поле orders не null
-                .body("orders", instanceOf(java.util.List.class)); // это список
-
-        int ordersCount = response.jsonPath().getList("orders").size();
-        Allure.step(String.format("Получено заказов: %d", ordersCount));
+        return qaScooterApiClient.sendGetRequestOrdersList();
 
     }
 

@@ -15,7 +15,7 @@ import static io.restassured.RestAssured.given;
 public class QaScooterApiClient {
 
     public QaScooterApiClient() {
-        RestAssured.baseURI = QaScooterApiConfig.getBaseUrl();
+        RestAssured.baseURI = QaScooterApiConfig.BASE_URL;
         RestAssured.filters(new AllureRestAssured()
                 .setRequestTemplate("http-request.ftl")
                 .setResponseTemplate("http-response.ftl"));
@@ -24,7 +24,7 @@ public class QaScooterApiClient {
     //создать курьера
     public Response sendPostRequestCreateCourier(AddCourier addCourier){
 
-        String endpoint = QaScooterApiConfig.getCourierAddEndpoint();
+        String endpoint = QaScooterApiConfig.COURIER_ADD_ENDPOINT;
 
         return given()
                 .header("Content-Type", "application/json")
@@ -35,7 +35,7 @@ public class QaScooterApiClient {
 
     //залогиниться под курьером
     public Response sendPostRequestloginCourier(String login, String password){
-        String endpoint = QaScooterApiConfig.getCourierLoginEndpoint();
+        String endpoint = QaScooterApiConfig.COURIER_LOGIN_ENDPOINT;
         LoginCourier loginCourier = new LoginCourier(login, password);
 
         return given()
@@ -47,7 +47,7 @@ public class QaScooterApiClient {
 
     //удалить курьера
     public Response sendDeleteRequestCourier(String id){
-        String endpoint = QaScooterApiConfig.getCourierDeleteEndpoint(id);
+        String endpoint = QaScooterApiConfig.COURIER_DEL_ENDPOINT.replace("{id}", id);
 
         return given()
                 .header("Content-Type", "application/json")
@@ -57,7 +57,7 @@ public class QaScooterApiClient {
 
     //Создать заказ
     public Response sendPostOrders(CreateOrders createOrders){
-        String endpoint = QaScooterApiConfig.getOrdersEndpoint();
+        String endpoint = QaScooterApiConfig.ORDERS;
 
         return given()
                 .header("Content-Type", "application/json")
@@ -69,7 +69,7 @@ public class QaScooterApiClient {
 
     //Получить список из 10 заказов
     public Response sendGetRequestOrdersList(){
-        String endpoint = QaScooterApiConfig.getOrdersEndpoint();
+        String endpoint = QaScooterApiConfig.ORDERS;
 
         return given()
                 .header("Content-Type", "application/json")
