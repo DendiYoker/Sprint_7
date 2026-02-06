@@ -22,6 +22,14 @@
         <aspectj.version>1.9.21</aspectj.version>
         <javafaker.version>1.0.2</javafaker.version>
         <lombok.version>1.18.30</lombok.version>
+
+        <surefire.jvm.args>
+            --add-opens java.base/java.lang=ALL-UNNAMED
+            --add-opens java.base/java.util=ALL-UNNAMED
+            --add-opens java.base/java.lang.invoke=ALL-UNNAMED
+            --add-opens java.base/java.net=ALL-UNNAMED
+            -Dgroovy.use.classvalue=true
+        </surefire.jvm.args>
     </properties>
 
     <dependencyManagement>
@@ -138,9 +146,13 @@
                 <version>3.2.3</version>
                 <configuration>
                     <testFailureIgnore>false</testFailureIgnore>
+                    <!-- ВАЖНО: forkMode всегда для изоляции -->
+                    <forkCount>1</forkCount>
+                    <reuseForks>false</reuseForks>
                     <argLine>
                         -javaagent:${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar
                         -Dfile.encoding=UTF-8
+                        ${surefire.jvm.args}
                     </argLine>
                     <systemProperties>
                         <property>
